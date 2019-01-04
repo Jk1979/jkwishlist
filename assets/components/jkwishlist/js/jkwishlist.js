@@ -76,7 +76,7 @@
             error: function (jqXHR, textStatus, errorThrown) {alert(textStatus);},
             success: function(response){
                 var dataid = jkw.sendData.formData[0]['value'];
-                $('.product-block[data-id="'+ dataid + '"]').remove();
+                $('[data-id="'+ dataid + '"]').remove();
                 jkw.Message.success('Удалено из списка желаний');
             }
         });

@@ -14,11 +14,12 @@ $getresources = $jkw->get();
 //$modx->setPlaceholder('wishlog',json_encode($getresources));
 
 if(!empty($getresources['products']))  $resources = implode(',',$getresources['products']);
-else return '';
+else return '<p>Список желаний пуст!</p>'  ;
 $data = array(
     'resources'=> $resources
 );
 
+$modx->setPlaceholder('countwish',count($getresources['products']));
 $output = $modx->runSnippet($snippet,array_merge($scriptProperties,$data));
 
 

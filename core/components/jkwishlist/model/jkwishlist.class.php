@@ -6,7 +6,7 @@ class Jkwishlist
     public $modx;
     public $config;
     protected $wishlist;
-    protected $ctx = 'web';
+    public $ctx = 'web';
 
     /**
      * @param modX $modx
@@ -45,7 +45,7 @@ class Jkwishlist
             'jsUrl' => $this->config['jsUrl'] . 'web/',
             'actionUrl' => $this->config['actionUrl'],
             'ctx' => $ctx,
-            ), true);
+        ), true);
         $this->modx->regClientStartupScript(
             '<script type="text/javascript">jkwConfig = ' . $data . ';</script>', true
         );
@@ -74,9 +74,9 @@ class Jkwishlist
                 $obj->save();
                 if(!in_array($id,$this->wishlist)) $this->wishlist[] = $id;
             }
-         @session_write_close();
-         return $this->success('ok',$this->wishlist);
-         }
+            @session_write_close();
+            return $this->success('ok',$this->wishlist);
+        }
         else {
             if(!in_array($id,$this->wishlist)) $this->wishlist[] = $id;
             @session_write_close();
@@ -89,17 +89,17 @@ class Jkwishlist
         if (empty($id) || !is_numeric($id)) {
             return $this->error('jkw_err_id');
         }
-            $obj = $this->modx->getObject('JkwishlistItem',['user'=>$this->modx->user->get('id')]);
-            if($obj){
-                $prods = !empty($obj->products)?json_decode($obj->products,true) : array();
-                if(!in_array($id,$prods)) return $this->error('jkw_no_such_id');
-                else unset($prods[array_search($id, $prods)]);
-                $obj->products = $prods;
-                $obj->save();
-            }
-            if(in_array($id,$this->wishlist)) unset($this->wishlist[array_search($id, $this->wishlist)]);
-            @session_write_close();
-            $log[] =$this->wishlist;
+        $obj = $this->modx->getObject('JkwishlistItem',['user'=>$this->modx->user->get('id')]);
+        if($obj){
+            $prods = !empty($obj->products)?json_decode($obj->products,true) : array();
+            if(!in_array($id,$prods)) return $this->error('jkw_no_such_id');
+            else unset($prods[array_search($id, $prods)]);
+            $obj->products = $prods;
+            $obj->save();
+        }
+        if(in_array($id,$this->wishlist)) unset($this->wishlist[array_search($id, $this->wishlist)]);
+        @session_write_close();
+        $log[] =$this->wishlist;
         return $this->success('ok',$log);
     }
     public function clear(){
@@ -114,14 +114,20 @@ class Jkwishlist
 
         $user_id = $this->modx->user->get('id');
         if(!$user_id){
-          if(!empty($this->wishlist)) return array('products'=>$this->wishlist);
+            if(!empty($this->wishlist)) return array('products'=>$this->wishlist);
             else return false;
         }
         elseif ($this->modx->user->hasSessionContext($this->ctx)) {
             $pdo = $this->modx->getService('pdoFetch');
             if(!$pdo)  $obj = $pdo->getObject('JkwishlistItem',array('user'=>$user_id));
-            else { $obj = $this->modx->getObject('JkwishlistItem',array('user'=>$user_id)); $obj=$obj->toArray();}
+            else {
+                $obj = $this->modx->getObject('JkwishlistItem',array('user'=>$user_id));
+                if($obj) $obj=$obj->toArray();
+            }
             return $obj;
+        }
+        else{
+            if(!empty($this->wishlist)) return array('products'=>$this->wishlist);
         }
 
 
@@ -141,7 +147,7 @@ class Jkwishlist
             : $response;
     }
 
-        public function success($message = '', $data = array())
+    public function success($message = '', $data = array())
     {
         $response = array(
             'success' => true,
